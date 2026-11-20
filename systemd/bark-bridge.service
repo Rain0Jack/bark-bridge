@@ -1,0 +1,19 @@
+[Unit]
+Description=ntfy to Bark bridge
+Documentation=https://github.com/yourname/bark-bridge
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/bark-bridge/env
+ExecStart=/usr/bin/python3 /opt/bark-bridge/bark-bridge.py
+Restart=always
+RestartSec=5
+
+# 可选：用普通用户运行（需要能访问 ntfy 的 HTTP 端口即可）
+# User=rain0jack
+# Group=rain0jack
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,10 @@
+# 构建成独立镜像运行（不挂载脚本），适合推到自己的镜像仓库
+services:
+  bark-bridge:
+    build: .
+    image: bark-bridge:latest
+    container_name: bark-bridge
+    restart: unless-stopped
+    network_mode: host
+    env_file:
+      - .env
