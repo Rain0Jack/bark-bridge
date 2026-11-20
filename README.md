@@ -24,7 +24,7 @@
 ## 快速开始（Docker）
 
 ```bash
-git clone https://github.com/<yourname>/bark-bridge.git
+git clone https://github.com/Rain0Jack/bark-bridge.git
 cd bark-bridge
 cp .env.example .env
 vim .env          # 填 NTFY_TOKEN 与 BARK_KEY
