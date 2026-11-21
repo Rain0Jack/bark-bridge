@@ -1,0 +1,1508 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="referrer" content="no-referrer">
+<title>Bark Bridge · 管理台</title>
+<link rel="icon" href="data:,">
+<style>:root{--bg:#f4f6f9;--panel:#ffffff;--text:#1a1f27;--muted:#667085;--border:#e2e6ec;--accent:#2563eb;--accent-2:#1d4ed8;--ok:#15803d;--warn:#b45309;--err:#b91c1c;--chip:#eef2f7;--ok-bg:rgba(21,128,61,.12);--warn-bg:rgba(180,83,9,.12);--err-bg:rgba(185,28,28,.12);--accent-bg:rgba(37,99,235,.12);--shadow:0 1px 2px rgba(16,24,40,.06),0 6px 20px rgba(16,24,40,.07);color-scheme:light;}
+@media (prefers-color-scheme:dark){:root{--bg:#0e1116;--panel:#161a21;--text:#e6e9ee;--muted:#98a2b3;--border:#262c36;--accent:#4f8df7;--accent-2:#7aa9ff;--ok:#5ad08b;--warn:#fbbf24;--err:#f87171;--chip:#1e242d;--ok-bg:rgba(90,208,139,.15);--warn-bg:rgba(251,191,36,.15);--err-bg:rgba(248,113,113,.15);--accent-bg:rgba(79,141,247,.16);--shadow:0 1px 2px rgba(0,0,0,.5),0 8px 24px rgba(0,0,0,.35);color-scheme:dark;}
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;font-size:15px;line-height:1.5;background:var(--bg);color:var(--text);-webkit-text-size-adjust:100%;}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+[hidden],.hidden{display:none!important}
+a{color:var(--accent)}
+::selection{background:var(--accent-bg)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.gate{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.gate-card{width:100%;max-width:390px;background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:28px 24px;box-shadow:var(--shadow)}
+.gate-brand{display:flex;align-items:center;gap:9px;font-size:19px;font-weight:700}
+.gate-sub{margin:6px 0 20px;color:var(--muted);font-size:13.5px}
+.gate-err{min-height:20px;margin:4px 0 8px;color:var(--err);font-size:13px;word-break:break-word}
+.gate-foot{margin:14px 0 0;color:var(--muted);font-size:12px;text-align:center}
+.dot{display:inline-block;width:11px;height:11px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-2));box-shadow:0 0 0 3px var(--accent-bg);flex:none}
+.fld{display:block;margin:0 0 13px}
+.fld>span:first-child{display:block;font-size:13px;color:var(--muted);margin-bottom:5px}
+.fld input,.fld select,.fld textarea{width:100%;padding:9px 11px;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:9px;outline:none;transition:border-color .15s;}
+.fld input:focus,.fld select:focus{border-color:var(--accent)}
+.fld input:disabled{opacity:.55;cursor:not-allowed}
+.fld-hint{display:block;font-size:12px;color:var(--muted);margin:3px 0 0}
+.checkline{display:flex;gap:18px;flex-wrap:wrap;margin:2px 0 12px}
+.chk{display:inline-flex;align-items:center;gap:7px;font-size:14px;cursor:pointer}
+.chk input{width:16px;height:16px;accent-color:var(--accent);margin:0}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+.form-grid .fld{margin-bottom:13px}
+.form-grid .fld input,.form-grid .fld select{min-width:0}
+.devpick{display:grid;grid-template-columns:1fr 1fr;gap:7px;max-height:190px;overflow:auto;border:1px solid var(--border);border-radius:9px;padding:9px;background:var(--bg)}
+.form-err{color:var(--err);font-size:13px;margin:0 0 10px;word-break:break-word}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:var(--panel);color:var(--text);font-size:14px;line-height:1.4;white-space:nowrap;text-decoration:none}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{background:var(--accent-2);border-color:var(--accent-2);color:#fff}
+.btn.danger{color:var(--err);border-color:var(--err)}
+.btn.danger:hover{background:var(--err-bg)}
+.btn.ghost{background:transparent}
+.btn.sm{font-size:13px;padding:4px 10px}
+.btn.icon{padding:2px 9px;font-size:15px;line-height:1.4}
+.btn.block{width:100%;padding:10px}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 14px;background:var(--panel);border-bottom:1px solid var(--border)}
+.brand{display:flex;align-items:center;gap:8px;font-weight:700;white-space:nowrap}
+.ver{font-weight:500}
+button.ver{appearance:none;cursor:default}
+button.ver.clickable{cursor:pointer}
+button.ver.clickable:hover{background:var(--accent-bg);color:var(--accent)}
+.udot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--warn);box-shadow:0 0 0 2px var(--warn-bg);margin-left:3px;flex:none}
+.tabs{display:flex;gap:4px;flex:1 1 auto;min-width:0;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{background:transparent;border:1px solid transparent;color:var(--muted);padding:6px 12px;border-radius:8px;font-size:14px;white-space:nowrap}
+.tab:hover{color:var(--text);background:var(--chip)}
+.tab.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.userbox{display:flex;align-items:center;gap:6px;margin-left:auto;flex-wrap:wrap}
+.who{font-size:13px;color:var(--muted);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.main{max-width:1080px;margin:0 auto;padding:16px 16px 70px}
+.panel{animation:fade .18s ease-out}
+@keyframes fade{from{opacity:.35;transform:translateY(3px)}
+to{opacity:1;transform:none}
+}
+.head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:2px 0 12px}
+.head h2{margin:0;font-size:19px}
+.hint{margin:0 0 12px;color:var(--muted);font-size:13px}
+.subhead{margin:22px 0 10px;font-size:15px}
+.subhead .muted{font-weight:400}
+.muted{color:var(--muted)}
+.clip{overflow-wrap:anywhere;word-break:break-word}
+.empty{grid-column:1/-1;text-align:center;color:var(--muted);font-size:14px;padding:22px;border:1px dashed var(--border);border-radius:12px;margin:0}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.stat{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:12px 14px;box-shadow:var(--shadow)}
+.stat .l{font-size:12.5px;color:var(--muted)}
+.stat .v{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;margin:2px 0 1px}
+.stat .s{font-size:11.5px;color:var(--muted)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(265px,1fr));gap:12px}
+.card{display:flex;flex-direction:column;gap:7px;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px;box-shadow:var(--shadow);min-width:0}
+.card h3{margin:0;font-size:16px;overflow-wrap:anywhere}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;min-width:0}
+.row.between{justify-content:space-between}
+.row.end{justify-content:flex-end;margin-top:auto;padding-top:2px}
+.gap4{gap:4px}
+.gap6{gap:6px}
+.kv{display:flex;justify-content:space-between;gap:10px;font-size:13px}
+.kv>span:last-child{text-align:right;min-width:0;overflow-wrap:anywhere}
+.meta{font-size:12.5px;color:var(--muted);overflow-wrap:anywhere}
+.errtext{font-size:12.5px;color:var(--err);overflow-wrap:anywhere}
+.key{font-family:ui-monospace,SFMono-Regular,Consolas,"Courier New",monospace;background:var(--chip);padding:2px 7px;border-radius:6px;font-size:12.5px;overflow-wrap:anywhere}
+.badge{display:inline-flex;align-items:center;padding:1px 8px;border-radius:999px;font-size:12px;font-weight:500;line-height:1.75;white-space:nowrap;border:1px solid transparent}
+.b-ok{color:var(--ok);background:var(--ok-bg)}
+.b-warn{color:var(--warn);background:var(--warn-bg)}
+.b-err{color:var(--err);background:var(--err-bg)}
+.b-accent{color:var(--accent);background:var(--accent-bg)}
+.b-muted{color:var(--muted);background:var(--chip)}
+.logbox{background:var(--panel);border:1px solid var(--border);border-radius:12px;overflow:auto;height:min(62vh,540px);box-shadow:var(--shadow)}
+.logline{display:flex;align-items:flex-start;gap:8px;padding:6px 11px;border-bottom:1px solid var(--border);font-size:13px}
+.logline:last-child{border-bottom:none}
+.logtime{flex:none;color:var(--muted);font-variant-numeric:tabular-nums;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px;padding-top:1px}
+.logtag{flex:none;font-weight:600;font-size:12px;min-width:28px}
+.logline.ok .logtag{color:var(--ok)}
+.logline.err .logtag{color:var(--err)}
+.logline.ok.kind-stream .logtag{color:var(--warn)}
+.logline.ok.kind-test .logtag{color:var(--accent)}
+.logline.ok.kind-update .logtag{color:var(--accent-2)}
+.logline.kind-update{background:var(--accent-bg)}
+.logbody{flex:1;min-width:0;overflow-wrap:anywhere}
+.logerr{flex:none;max-width:38%;color:var(--err);font-size:12px;overflow-wrap:anywhere}
+.logbox .empty{border:none}
+.overlay{position:fixed;inset:0;z-index:50;background:rgba(8,12,18,.5);display:flex;align-items:center;justify-content:center;padding:16px}
+.modal-box{width:100%;max-width:580px;max-height:88vh;overflow:auto;background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:18px;box-shadow:var(--shadow)}
+.modal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+.modal-head h2{margin:0;font-size:17px}
+.modal-foot{display:flex;justify-content:flex-end;gap:8px;margin-top:6px;flex-wrap:wrap}
+.upd{display:flex;flex-direction:column;gap:9px}
+.upd-status{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:13.5px;display:flex;flex-direction:column;gap:2px}
+.upd-row{display:flex;justify-content:space-between;gap:10px;padding:2px 0;font-size:13px}
+.upd-row>span:first-child{color:var(--muted);flex:none}
+.upd-row>span:last-child{text-align:right;overflow-wrap:anywhere}
+.upd-note{color:var(--muted);font-size:12.5px;overflow-wrap:anywhere}
+.upd-warn{color:var(--warn);background:var(--warn-bg);border:1px solid var(--warn);border-radius:8px;padding:8px 10px;font-size:13px;margin-top:6px;overflow-wrap:anywhere}
+.upd-err{color:var(--err);background:var(--err-bg);border:1px solid var(--err);border-radius:8px;padding:8px 10px;font-size:13px;overflow-wrap:anywhere}
+.upd-busy{color:var(--accent);background:var(--accent-bg);border:1px solid var(--accent);border-radius:8px;padding:8px 10px;font-size:13px;overflow-wrap:anywhere}
+.upd-new{color:var(--accent);font-weight:600;font-size:14.5px}
+.mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12.5px}
+.sr{position:fixed;left:-9999px;top:0;width:1px;height:1px;opacity:0}
+.toasts{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:90;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;width:max-content;max-width:94vw}
+.toast{pointer-events:auto;background:var(--panel);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:10px;padding:9px 14px;font-size:14px;box-shadow:var(--shadow);animation:drop .18s ease-out;overflow-wrap:anywhere}
+.toast.err{border-left-color:var(--err)}
+.toast.ok{border-left-color:var(--ok)}
+.toast.out{opacity:0;transition:opacity .25s}
+@keyframes drop{from{opacity:0;transform:translateY(-6px)}
+to{opacity:1;transform:none}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}
+}
+@media (max-width:560px){body{font-size:14.5px}
+.topbar{padding:8px 10px;gap:7px}
+.brand{font-size:14px}
+.tabs{order:3;flex:1 0 100%;width:100%;padding-bottom:2px}
+.tab{font-size:13.5px;padding:5px 10px}
+.who{max-width:105px}
+.main{padding:12px 10px 60px}
+.form-grid{grid-template-columns:1fr}
+.devpick{grid-template-columns:1fr}
+.stats{grid-template-columns:1fr 1fr}
+.stat .v{font-size:19px}
+.cards{grid-template-columns:1fr}
+.logbox{height:58vh}
+.logerr{max-width:30%}
+.gate-card{padding:22px 16px}
+.modal-box{padding:15px}
+.head h2{font-size:17px}
+}</style>
+</head>
+<body>
+
+<div id="toasts" class="toasts" aria-live="polite" aria-atomic="false"></div>
+
+<!-- ========== 登录（已登录时会被脚本隐藏） ========== -->
+<div id="view-login" class="gate">
+  <form id="login-form" class="gate-card" autocomplete="on">
+    <div class="gate-brand"><span class="dot"></span> Bark Bridge</div>
+    <p class="gate-sub">ntfy → Bark 推送桥 · 管理台</p>
+    <label class="fld"><span>用户名</span><input id="login-user" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required></label>
+    <label class="fld"><span>密码</span><input id="login-pass" type="password" autocomplete="current-password" required></label>
+    <p class="gate-err" id="login-msg" role="alert"></p>
+    <button class="btn primary block" id="login-btn" type="submit">登录</button>
+    <p class="gate-foot" id="login-ver"></p>
+  </form>
+</div>
+
+<!-- ========== 首次初始化 ========== -->
+<div id="view-setup" class="gate hidden">
+  <form id="setup-form" class="gate-card" autocomplete="off">
+    <div class="gate-brand"><span class="dot"></span> 初始化 Bark Bridge</div>
+    <p class="gate-sub">首次使用：创建管理员账号后自动登录</p>
+    <label class="fld"><span>管理员用户名</span><input id="setup-user" type="text" value="admin" autocomplete="username" autocapitalize="none" spellcheck="false" required></label>
+    <label class="fld"><span>密码（8~128 位）</span><input id="setup-pass" type="password" autocomplete="new-password" required></label>
+    <label class="fld"><span>确认密码</span><input id="setup-pass2" type="password" autocomplete="new-password" required></label>
+    <p class="gate-err" id="setup-msg" role="alert"></p>
+    <button class="btn primary block" id="setup-btn" type="submit">创建管理员并登录</button>
+    <p class="gate-foot">密码只保存 PBKDF2 哈希，不会明文存储</p>
+  </form>
+</div>
+
+<!-- ========== 主界面 ========== -->
+<div id="view-main" class="hidden">
+  <header class="topbar">
+    <div class="brand"><span class="dot"></span><span>Bark Bridge</span><button class="badge b-muted ver" id="ver-badge" type="button" disabled><span id="ver-text"></span><span class="udot" id="update-dot" hidden></span></button></div>
+    <nav class="tabs" id="tabs" role="tablist">
+      <button class="tab" type="button" data-tab="overview" role="tab" aria-selected="false">概览</button>
+      <button class="tab" type="button" data-tab="devices" role="tab" aria-selected="false">设备</button>
+      <button class="tab" type="button" data-tab="subs" role="tab" aria-selected="false">订阅</button>
+      <button class="tab" type="button" data-tab="users" role="tab" aria-selected="false" hidden>用户</button>
+      <button class="tab" type="button" data-tab="logs" role="tab" aria-selected="false">日志</button>
+    </nav>
+    <div class="userbox">
+      <span class="who" id="who"></span>
+      <button class="btn ghost sm" id="btn-pass" type="button">密码</button>
+      <button class="btn ghost sm" id="btn-logout" type="button">退出</button>
+    </div>
+  </header>
+
+  <main class="main">
+    <section id="panel-overview" class="panel" role="tabpanel" hidden>
+      <div class="head">
+        <h2>概览</h2>
+        <button class="btn ghost sm" id="ov-refresh" type="button">刷新</button>
+      </div>
+      <div class="stats" id="ov-stats"></div>
+      <h3 class="subhead">订阅流状态 <span class="muted" id="ov-updated"></span></h3>
+      <div class="cards" id="ov-streams"></div>
+    </section>
+
+    <section id="panel-devices" class="panel" role="tabpanel" hidden>
+      <div class="head">
+        <h2>设备</h2>
+        <div class="btn-row">
+          <button class="btn ghost sm" id="dev-refresh" type="button">刷新</button>
+          <button class="btn primary sm" id="dev-add" type="button">+ 新增设备</button>
+        </div>
+      </div>
+      <p class="hint">一台 iOS 设备对应一个 Bark Key；Bark Key 默认打码，可点「显示」查看。</p>
+      <div class="cards" id="dev-list"></div>
+    </section>
+
+    <section id="panel-subs" class="panel" role="tabpanel" hidden>
+      <div class="head">
+        <h2>订阅</h2>
+        <div class="btn-row">
+          <button class="btn ghost sm" id="sub-refresh" type="button">刷新</button>
+          <button class="btn primary sm" id="sub-add" type="button">+ 新增订阅</button>
+        </div>
+      </div>
+      <p class="hint">每个 ntfy topic 一条订阅，可同时推送到多台设备；配置改动会在 1~2 秒内自动生效。</p>
+      <div class="cards" id="sub-list"></div>
+    </section>
+
+    <section id="panel-users" class="panel" role="tabpanel" hidden>
+      <div class="head">
+        <h2>用户</h2>
+        <div class="btn-row">
+          <button class="btn ghost sm" id="user-refresh" type="button">刷新</button>
+          <button class="btn primary sm" id="user-add" type="button">+ 新增用户</button>
+        </div>
+      </div>
+      <p class="hint">仅管理员可见。删除用户会级联删除其设备与订阅；不能停用或删除自己。</p>
+      <div class="cards" id="user-list"></div>
+    </section>
+
+    <section id="panel-logs" class="panel" role="tabpanel" hidden>
+      <div class="head">
+        <h2>实时日志</h2>
+        <div class="btn-row">
+          <button class="btn ghost sm" id="log-pause" type="button">暂停</button>
+          <button class="btn ghost sm" id="log-clear" type="button">清屏</button>
+          <button class="btn ghost sm" id="log-now" type="button">立即刷新</button>
+        </div>
+      </div>
+      <p class="hint">每 2 秒增量拉取 <span class="muted">/api/activity</span>；页面隐藏时自动暂停轮询，清屏不会打乱游标。</p>
+      <div class="logbox" id="log-list"></div>
+    </section>
+  </main>
+</div>
+
+<div id="modal-root"></div>
+
+<datalist id="since-list">
+  <option value="1m"></option>
+  <option value="10m"></option>
+  <option value="1h"></option>
+  <option value="6h"></option>
+  <option value="12h"></option>
+  <option value="24h"></option>
+  <option value="all"></option>
+</datalist>
+
+<noscript><p style="padding:20px;text-align:center">本管理台需要启用 JavaScript。</p></noscript>
+
+<script>(function () {
+'use strict';
+/* 状态 */
+var state = {
+user: null, isAdmin: false, version: '', csrf: '', health: null, settings: null,
+tab: 'overview', devices: [], subs: [], users: [], status: null, unmasked: new Set(),
+logCursor: 0, logPaused: false, logBusy: false, logTimer: 0, statusTimer: 0,
+updateCache: null, updateTimer: 0, upd: null, appliedNotified: 0
+};
+var STATE_META = {
+streaming: ['运行中', 'ok'], connecting: ['连接中', 'warn'], reconnecting: ['重连中', 'warn'],
+error: ['错误', 'err'], stopped: ['已停止', 'muted']
+};
+var KIND_TAG = { push: '推送', test: '测试', stream: '流', update: '更新' };
+var LEVEL_OPTS = [['', '默认（按优先级映射）'], ['active', 'active'], ['timeSensitive', 'timeSensitive'], ['passive', 'passive'], ['critical', 'critical']];
+var PRIO_OPTS = [['0', '0 · 不过滤'], ['1', '1 · min'], ['2', '2 · low'], ['3', '3 · default'], ['4', '4 · high'], ['5', '5 · max']];
+var TOPIC_RE = /^[A-Za-z0-9_.-]{1,64}$/;
+var USER_RE = /^[A-Za-z0-9_.-]{2,32}$/;
+/* DOM */
+function $(sel, root) { return (root || document).querySelector(sel); }
+function $$(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
+function appendKid(node, kid) {
+if (kid === null || kid === undefined || kid === false) return;
+if (Array.isArray(kid)) { for (var i = 0; i < kid.length; i++) appendKid(node, kid[i]); return; }
+if (kid && kid.nodeType) { node.appendChild(kid); return; }
+node.appendChild(document.createTextNode(String(kid)));
+}
+function el(tag, attrs) {
+var node = document.createElement(tag);
+if (attrs) {
+Object.keys(attrs).forEach(function (k) {
+var v = attrs[k];
+if (v === null || v === undefined || v === false) return;
+if (k === 'class') { node.className = v; }
+else if (k === 'text') { node.textContent = String(v); }
+else if (k.slice(0, 2) === 'on' && typeof v === 'function') { node.addEventListener(k.slice(2), v); }
+else if (v === true) { node.setAttribute(k, ''); }
+else { node.setAttribute(k, String(v)); }
+});
+}
+for (var i = 2; i < arguments.length; i++) appendKid(node, arguments[i]);
+return node;
+}
+function toast(text, kind) {
+kind = kind || 'info';
+var box = $('#toasts');
+var node = el('div', { class: 'toast ' + kind, role: 'status' }, text);
+box.appendChild(node);
+setTimeout(function () {
+node.classList.add('out');
+setTimeout(function () { if (node.parentNode) node.parentNode.removeChild(node); }, 260);
+}, kind === 'err' ? 5200 : 3200);
+while (box.children.length > 4) box.removeChild(box.firstChild);
+}
+function badge(text, kind) { return el('span', { class: 'badge b-' + (kind || 'muted'), text: text }); }
+function stateBadge(st) { var m = STATE_META[st] || [st || '未知', 'muted']; return badge(m[0], m[1]); }
+function select(opts, value) {
+var s = el('select');
+opts.forEach(function (o) { s.appendChild(el('option', { value: o[0], text: o[1] })); });
+if (value !== undefined && value !== null) s.value = String(value);
+return s;
+}
+function field(labelText, input, hint) {
+return el('label', { class: 'fld' },
+el('span', { text: labelText }),
+input,
+hint ? el('span', { class: 'fld-hint', text: hint }) : null
+);
+}
+function fail(errBox, msg) { errBox.textContent = msg; errBox.hidden = false; return false; }
+function pad(n) { return n < 10 ? '0' + n : String(n); }
+function fmtClock(ts) {
+if (!ts) return '--:--:--';
+var d = new Date(ts * 1000);
+return pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+}
+function fmtTime(ts) {
+if (!ts) return '—';
+var d = new Date(ts * 1000);
+return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+}
+function fmtUptime(sec) {
+sec = Math.max(0, Math.floor(sec || 0));
+var d = Math.floor(sec / 86400), h = Math.floor((sec % 86400) / 3600), m = Math.floor((sec % 3600) / 60);
+if (d) return d + ' 天 ' + h + ' 小时';
+if (h) return h + ' 小时 ' + m + ' 分';
+if (m) return m + ' 分';
+return sec + ' 秒';
+}
+function maskKey(k) {
+k = String(k || '');
+if (k.length <= 8) return '••••••';
+return k.slice(0, 4) + '••••' + k.slice(-2);
+}
+function levelLabel(v) { return v || '默认（跟随优先级）'; }
+/* 接口 */
+function getCookie(name) {
+var parts = document.cookie ? document.cookie.split('; ') : [];
+for (var i = 0; i < parts.length; i++) {
+var idx = parts[i].indexOf('=');
+if (idx > 0 && parts[i].slice(0, idx) === name) return decodeURIComponent(parts[i].slice(idx + 1));
+}
+return '';
+}
+function csrf() { return getCookie('bb_csrf') || state.csrf || ''; }
+function ApiError(message, code, status) {
+this.message = message;
+this.code = code || '';
+this.status = status || 0;
+}
+ApiError.prototype = Object.create(Error.prototype);
+ApiError.prototype.constructor = ApiError;
+ApiError.prototype.name = 'ApiError';
+async function api(method, path, body, opts) {
+opts = opts || {};
+var headers = {};
+var init = { method: method, credentials: 'same-origin', cache: 'no-store', headers: headers };
+if (body !== undefined) {
+headers['Content-Type'] = 'application/json';
+init.body = JSON.stringify(body);
+}
+if (method !== 'GET' && method !== 'HEAD') headers['X-CSRF-Token'] = csrf();
+var res;
+try { res = await fetch(path, init); }
+catch (ex) {
+if (!opts.silent) toast('网络错误：无法连接服务器', 'err');
+throw new ApiError('网络错误：无法连接服务器', 'network', 0);
+}
+var data = null;
+try { data = await res.json(); } catch (ex) { data = null; }
+if (res.status === 401 && !opts.noAuth && path !== '/api/login' && path !== '/api/setup') {
+toLogin(true);
+throw new ApiError((data && data.error) || '登录已过期，请重新登录', (data && data.code) || 'unauthorized', 401);
+}
+if (!res.ok || !data || data.ok !== true) {
+var msg = (data && data.error) || ('请求失败（HTTP ' + res.status + '）');
+if (!opts.silent) toast(msg, 'err');
+throw new ApiError(msg, (data && data.code) || '', res.status);
+}
+var payload = data.data || {};
+if (typeof payload.csrf === 'string' && payload.csrf) state.csrf = payload.csrf;
+return payload;
+}
+/* 视图 */
+function showView(name) {
+['login', 'setup', 'main'].forEach(function (v) {
+var node = $('#view-' + v);
+if (node) node.classList.toggle('hidden', v !== name);
+});
+}
+function toLogin(expired) {
+stopPollers();
+state.user = null; state.isAdmin = false; state.status = null;
+state.devices = []; state.subs = []; state.users = [];
+state.settings = null; state.unmasked.clear();
+state.logCursor = 0; state.logPaused = false; state.logBusy = false;
+var logList = $('#log-list');
+if (logList) logList.textContent = '';
+var pauseBtn = $('#log-pause');
+if (pauseBtn) { pauseBtn.textContent = '暂停'; pauseBtn.classList.remove('primary'); }
+var pass = $('#login-pass');
+if (pass) pass.value = '';
+var msg = $('#login-msg');
+if (msg) msg.textContent = expired ? '登录已过期，请重新登录' : '';
+showView('login');
+setUpdateDot(false);
+closeUpdateDialog(true);
+if (expired) toast('登录已过期，请重新登录', 'err');
+closeModal();
+setTimeout(function () { try { $('#login-user').focus(); } catch (e) {} }, 60);
+}
+function applyMe(d) {
+d = d || {};
+state.user = d.user || null;
+state.isAdmin = !!(d.is_admin || (state.user && state.user.role === 'admin'));
+if (d.version) state.version = d.version;
+if (d.csrf) state.csrf = d.csrf;
+var verBadge = $('#ver-badge');
+var verText = $('#ver-text');
+if (verText) verText.textContent = state.version ? 'v' + state.version : '';
+if (verBadge) {
+verBadge.disabled = !state.isAdmin;
+verBadge.classList.toggle('clickable', state.isAdmin);
+verBadge.setAttribute('title', state.isAdmin ? '在线更新' : '');
+}
+if (!state.isAdmin) setUpdateDot(false);
+var who = $('#who');
+if (who) who.textContent = state.user ? state.user.username + (state.isAdmin ? ' · 管理员' : '') : '';
+var usersTab = $('#tabs [data-tab="users"]');
+if (usersTab) usersTab.hidden = !state.isAdmin;
+}
+async function enterApp(me) {
+applyMe(me);
+showView('main');
+switchTab('overview');
+await Promise.all([loadDevices(), loadSubs(), ensureSettings()]);
+if (state.isAdmin) await loadUsers();
+if (state.tab === 'overview') loadOverview();
+if (state.isAdmin) refreshUpdateBadge();
+}
+function switchTab(name) {
+if (name === 'users' && !state.isAdmin) name = 'overview';
+state.tab = name;
+$$('#tabs .tab').forEach(function (btn) {
+var on = btn.getAttribute('data-tab') === name;
+btn.classList.toggle('active', on);
+btn.setAttribute('aria-selected', on ? 'true' : 'false');
+});
+$$('.panel').forEach(function (p) { p.hidden = p.id !== 'panel-' + name; });
+stopPollers();
+if (name === 'overview') { loadOverview(); startStatusPoll(); }
+else if (name === 'devices') { loadDevices(); }
+else if (name === 'subs') { loadSubs(); }
+else if (name === 'users') { loadUsers(); }
+else if (name === 'logs') {
+if (!$('#log-list').children.length) $('#log-list').appendChild(el('p', { class: 'empty', text: '等待推送事件…' }));
+startLogPoll(); pollActivity();
+}
+}
+/* 轮询 */
+function stopPollers() {
+if (state.logTimer) { clearInterval(state.logTimer); state.logTimer = 0; }
+if (state.statusTimer) { clearInterval(state.statusTimer); state.statusTimer = 0; }
+}
+function startLogPoll() {
+stopPollers();
+state.logTimer = setInterval(function () { pollActivity(); }, 2000);
+}
+function startStatusPoll() {
+stopPollers();
+state.statusTimer = setInterval(function () { if (state.tab === 'overview') loadOverviewSilent(); }, 5000);
+}
+function loadOverviewSilent() {
+if (document.visibilityState !== 'visible') return;
+loadOverview();
+}
+function pollActivity() {
+if (!state.user || state.logPaused || state.logBusy) return;
+if (document.visibilityState !== 'visible') return;
+state.logBusy = true;
+api('GET', '/api/activity?since=' + encodeURIComponent(state.logCursor) + '&limit=100', undefined, { silent: true })
+.then(function (d) {
+var items = (d && d.items) || [];
+if (d && typeof d.last_id === 'number' && d.last_id > state.logCursor) state.logCursor = d.last_id;
+if (items.length) appendLogs(items);
+})
+.catch(function () {})
+.then(function () { state.logBusy = false; });
+}
+function appendLogs(items) {
+var box = $('#log-list');
+var ph = box.querySelector('.empty');
+if (ph) box.removeChild(ph);
+var atBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 90;
+for (var i = 0; i < items.length; i++) box.appendChild(logLine(items[i]));
+while (box.children.length > 300) box.removeChild(box.firstChild);
+if (atBottom) box.scrollTop = box.scrollHeight;
+}
+function logLine(it) {
+it = it || {};
+var kind = String(it.kind || 'push');
+var ok = it.ok === true;
+var cls = ok ? 'ok' : 'err';
+var tagText = KIND_TAG[kind] || kind.slice(0, 8);
+var kindCls = kind.replace(/[^A-Za-z0-9_-]/g, '') || 'unknown';
+var parts = [];
+if (it.subscription) parts.push('「' + it.subscription + '」');
+if (it.device) parts.push('→ ' + it.device);
+if (it.title) parts.push(it.title);
+if (kind === 'stream') parts.unshift(ok ? '流状态正常' : '流异常');
+var line = el('div', { class: 'logline ' + cls + ' kind-' + kindCls },
+el('span', { class: 'logtime', text: fmtClock(it.ts) }),
+el('span', { class: 'logtag ' + cls, text: tagText }),
+el('span', { class: 'logbody', text: parts.join(' ') || '—' })
+);
+if (it.error) line.appendChild(el('span', { class: 'logerr', text: it.error }));
+return line;
+}
+/* 概览 */
+function statCard(label, value, hint) {
+return el('div', { class: 'stat' },
+el('div', { class: 'l', text: label }),
+el('div', { class: 'v', text: String(value) }),
+hint ? el('div', { class: 's', text: hint }) : null
+);
+}
+async function loadOverview() {
+try {
+var d = await api('GET', '/api/status', undefined, { silent: true });
+state.status = d;
+if ((!state.subs || !state.subs.length) && d.subscriptions && d.subscriptions.length) {
+try {
+var s = await api('GET', '/api/subscriptions', undefined, { silent: true });
+state.subs = s.subscriptions || [];
+} catch (e) {}
+}
+renderOverview();
+} catch (e) {}
+}
+function renderOverview() {
+var d = state.status;
+var stats = $('#ov-stats');
+stats.textContent = '';
+var totalSubs = state.subs.length;
+var activeDevs = state.devices.filter(function (x) { return x.is_active; }).length;
+if (!d) {
+stats.appendChild(el('p', { class: 'empty', text: '正在加载概览…' }));
+return;
+}
+var t = d.totals || {};
+stats.appendChild(statCard('启用订阅', (t.subscriptions_active || 0) + ' / ' + totalSubs, '启用 / 全部订阅'));
+stats.appendChild(statCard('启用设备', String(t.devices_active || 0) + ' / ' + activeDevs, '启用 / 本页可见'));
+stats.appendChild(statCard('累计转发', String(t.forwarded_since_start || 0), '自本次启动'));
+stats.appendChild(statCard('运行时长', fmtUptime(d.uptime), '版本 ' + (d.version || state.version || '—')));
+var box = $('#ov-streams');
+box.textContent = '';
+var streams = d.subscriptions || [];
+if (!streams.length) {
+box.appendChild(el('p', { class: 'empty', text: '暂无订阅，去「订阅」页添加一条 ntfy topic。' }));
+}
+streams.forEach(function (s) { box.appendChild(streamCard(s)); });
+$('#ov-updated').textContent = '更新于 ' + fmtClock(Date.now() / 1000);
+}
+function streamCard(s) {
+var sub = null;
+for (var i = 0; i < state.subs.length; i++) { if (state.subs[i].id === s.id) { sub = state.subs[i]; break; } }
+var name = sub ? sub.name : (s.name || ('订阅 #' + s.id));
+var card = el('div', { class: 'card' },
+el('div', { class: 'row between' }, el('h3', { text: name }), stateBadge(s.state))
+);
+var topicText = sub ? sub.topic : (s.topic || '');
+if (topicText) card.appendChild(el('div', { class: 'kv' }, el('span', { class: 'muted', text: 'Topic' }), el('span', { class: 'clip', text: topicText })));
+card.appendChild(el('div', { class: 'kv' }, el('span', { class: 'muted', text: '累计转发' }), el('span', { text: String(s.forwarded || 0) + ' 条' })));
+card.appendChild(el('div', { class: 'kv' }, el('span', { class: 'muted', text: '最近消息' }), el('span', { text: fmtTime(s.last_message_at) })));
+if (s.last_error) card.appendChild(el('div', { class: 'errtext', text: '错误：' + s.last_error }));
+card.appendChild(el('div', { class: 'row end' },
+el('button', {
+class: 'btn sm', type: 'button', text: '测试推送',
+onclick: function () { testSub(sub || { id: s.id, name: name }, this); }
+})
+));
+return card;
+}
+/* 设备 */
+async function loadDevices() {
+try {
+var d = await api('GET', '/api/devices', undefined, { silent: true });
+state.devices = d.devices || [];
+renderDevices();
+} catch (e) {}
+}
+function findDevice(id) {
+for (var i = 0; i < state.devices.length; i++) { if (state.devices[i].id === id) return state.devices[i]; }
+return null;
+}
+function pushUrlOf(d) { return String(d.server || '').replace(/\/+$/, '') + '/' + d.bark_key; }
+function renderDevices() {
+var box = $('#dev-list');
+box.textContent = '';
+if (!state.devices.length) {
+box.appendChild(el('p', { class: 'empty', text: '暂无设备，点击右上角「新增设备」添加。' }));
+return;
+}
+state.devices.forEach(function (d) { box.appendChild(deviceCard(d)); });
+}
+function deviceCard(d) {
+var masked = !state.unmasked.has(d.id);
+var keyEl = el('span', { class: 'key', text: masked ? maskKey(d.bark_key) : String(d.bark_key || '') });
+var card = el('div', { class: 'card' },
+el('div', { class: 'row between' },
+el('h3', { text: d.name }),
+el('div', { class: 'row gap4' },
+d.is_active ? badge('启用', 'ok') : badge('停用', 'muted'),
+state.isAdmin && d.owner ? badge(d.owner, 'accent') : null
+)
+),
+el('div', { class: 'row gap6' },
+el('span', { class: 'muted', text: 'Bark Key' }),
+keyEl,
+el('button', {
+class: 'btn ghost sm', type: 'button', text: masked ? '显示' : '隐藏',
+onclick: function () {
+if (state.unmasked.has(d.id)) state.unmasked.delete(d.id); else state.unmasked.add(d.id);
+renderDevices();
+}
+}),
+el('button', {
+class: 'btn ghost sm', type: 'button', text: '复制地址',
+onclick: function () { copyText(pushUrlOf(d)); }
+})
+),
+el('div', { class: 'kv' }, el('span', { class: 'muted', text: '服务器' }), el('span', { text: d.server || '—' })),
+el('div', { class: 'kv' }, el('span', { class: 'muted', text: '分组 / 级别' }), el('span', { text: (d.group || '—') + ' / ' + levelLabel(d.level) })),
+d.icon ? el('div', { class: 'kv' }, el('span', { class: 'muted', text: '图标' }), el('span', { class: 'clip', text: d.icon })) : null,
+el('div', { class: 'kv' }, el('span', { class: 'muted', text: '累计推送' }), el('span', { text: String(d.pushed_count || 0) + ' 条' })),
+el('div', { class: 'kv' }, el('span', { class: 'muted', text: '最近推送' }), el('span', { text: fmtTime(d.last_push_at) })),
+d.last_error ? el('div', { class: 'errtext', text: '最近错误：' + d.last_error }) : null,
+el('div', { class: 'row end' },
+el('button', { class: 'btn sm', type: 'button', text: '测试推送', onclick: function () { testDevice(d, this); } }),
+el('button', { class: 'btn sm', type: 'button', text: '编辑', onclick: function () { openDeviceForm(d); } }),
+el('button', { class: 'btn sm danger', type: 'button', text: '删除', onclick: function () { removeDevice(d); } })
+)
+);
+return card;
+}
+async function testDevice(d, btn) {
+btn.disabled = true;
+try {
+var r = await api('POST', '/api/devices/' + d.id + '/test', {});
+toast('测试通知已发送' + (r.detail ? '：' + r.detail : ''), 'ok');
+loadDevices();
+} catch (ex) {}
+finally { btn.disabled = false; }
+}
+async function removeDevice(d) {
+if (!confirm('确定删除设备「' + d.name + '」？关联订阅会自动解除该设备。')) return;
+try {
+await api('DELETE', '/api/devices/' + d.id, {});
+toast('设备已删除', 'ok');
+await refreshCore();
+} catch (ex) {}
+}
+async function openDeviceForm(dev) {
+await ensureSettings();
+if (state.isAdmin && !state.users.length) await loadUsers();
+var editing = !!dev;
+var defaults = (state.settings && state.settings.defaults) || {};
+var name = el('input', { type: 'text', maxlength: '64', value: editing ? dev.name : '', placeholder: '例如：iPhone 15' });
+var key = el('input', { type: 'password', autocomplete: 'new-password', value: '', placeholder: editing ? '留空表示不修改 Key' : '必填，4~128 个字符' });
+var server = el('input', { type: 'text', value: editing ? (dev.server || '') : '', placeholder: '留空使用默认服务器' + (defaults.bark_server ? '（' + defaults.bark_server + '）' : '') });
+var group = el('input', { type: 'text', maxlength: '64', value: editing ? (dev.group || '') : '', placeholder: 'ntfy' });
+var level = select(LEVEL_OPTS, editing ? (dev.level || '') : '');
+var icon = el('input', { type: 'text', value: editing ? (dev.icon || '') : '', placeholder: '可选，图标 URL' });
+var active = el('input', { type: 'checkbox' });
+active.checked = editing ? !!dev.is_active : true;
+var owner = state.isAdmin && !editing ? ownerSelect(state.user ? state.user.id : '') : null;
+var body = el('div', {},
+el('div', { class: 'form-grid' },
+field('名称', name),
+field('Bark Key', key, editing ? '留空表示保持原 Key 不变' : '在 Bark App 首页获取'),
+field('Bark 服务器', server),
+field('分组（group）', group),
+field('通知级别', level, '空 = 按 ntfy 优先级映射'),
+field('图标 URL', icon),
+owner ? field('归属用户', owner, '创建后不可改归属') : null
+),
+el('div', { class: 'checkline' }, el('label', { class: 'chk' }, active, '启用该设备'))
+);
+openModal(editing ? '编辑设备' : '新增设备', body, async function (err) {
+var vn = name.value.trim();
+if (!vn) return fail(err, '请填写设备名称');
+var payload = { name: vn, level: level.value, icon: icon.value.trim(), is_active: active.checked };
+if (key.value.trim()) payload.bark_key = key.value.trim();
+else if (!editing) return fail(err, '请填写 Bark Key');
+if (server.value.trim()) payload.server = server.value.trim();
+if (editing) payload.group = group.value.trim();
+else if (group.value.trim()) payload.group = group.value.trim();
+if (owner) payload.owner_id = Number(owner.value);
+try {
+await api(editing ? 'PUT' : 'POST', editing ? '/api/devices/' + dev.id : '/api/devices', payload);
+} catch (ex) { return fail(err, ex.message || '保存失败'); }
+toast(editing ? '设备已更新' : '设备已创建', 'ok');
+await refreshCore();
+return true;
+});
+}
+/* 订阅 */
+async function loadSubs() {
+try {
+var d = await api('GET', '/api/subscriptions', undefined, { silent: true });
+state.subs = d.subscriptions || [];
+renderSubs();
+} catch (e) {}
+}
+function subState(s) { return (s && s.stats && s.stats.state) || 'stopped'; }
+function renderSubs() {
+var box = $('#sub-list');
+box.textContent = '';
+if (!state.subs.length) {
+box.appendChild(el('p', { class: 'empty', text: '暂无订阅，点击右上角「新增订阅」创建。' }));
+return;
+}
+state.subs.forEach(function (s) { box.appendChild(subCard(s)); });
+}
+function subCard(s) {
+var card = el('div', { class: 'card' },
+el('div', { class: 'row between' }, el('h3', { text: s.name }), stateBadge(subState(s))),
+el('div', { class: 'kv' }, el('span', { class: 'muted', text: 'ntfy / topic' }), el('span', { class: 'clip', text: (s.ntfy_url || '默认') + ' / ' + s.topic })),
+el('div', { class: 'row gap4' },
+s.has_token ? badge('Token 已设置', 'accent') : badge('无 Token', 'muted'),
+s.is_active ? badge('启用', 'ok') : badge('停用', 'muted'),
+state.isAdmin && s.owner ? badge(s.owner, 'accent') : null,
+badge('since ' + s.since, 'muted')
+),
+subFilterLine(s)
+);
+var names = (s.device_ids || []).map(function (id) {
+var d = findDevice(id);
+return d ? d.name : ('设备 #' + id);
+});
+card.appendChild(el('div', { class: 'kv' }, el('span', { class: 'muted', text: '目标设备' }), el('span', { class: 'clip', text: names.length ? names.join('、') : '未选择' })));
+var st = s.stats || {};
+card.appendChild(el('div', { class: 'kv' }, el('span', { class: 'muted', text: '累计转发' }), el('span', { text: String(st.forwarded || 0) + ' 条' })));
+card.appendChild(el('div', { class: 'kv' }, el('span', { class: 'muted', text: '最近消息' }), el('span', { text: fmtTime(st.last_message_at) })));
+if (st.last_error) card.appendChild(el('div', { class: 'errtext', text: '流错误：' + st.last_error }));
+card.appendChild(el('div', { class: 'row end' },
+el('button', { class: 'btn sm', type: 'button', text: '测试推送', onclick: function () { testSub(s, this); } }),
+el('button', { class: 'btn sm', type: 'button', text: '编辑', onclick: function () { openSubForm(s); } }),
+el('button', { class: 'btn sm danger', type: 'button', text: '删除', onclick: function () { removeSub(s); } })
+));
+return card;
+}
+function subFilterLine(s) {
+var fl = [];
+if (s.priority_min) fl.push('优先级 ≥ ' + s.priority_min);
+if (s.keyword) fl.push('含「' + s.keyword + '」');
+if (s.exclude_keyword) fl.push('排除「' + s.exclude_keyword + '」');
+if (s.title_prefix) fl.push('前缀「' + s.title_prefix + '」');
+if (!fl.length) return null;
+return el('div', { class: 'meta', text: fl.join(' · ') });
+}
+async function testSub(s, btn) {
+if (!s) return;
+btn.disabled = true;
+try {
+var r = await api('POST', '/api/subscriptions/' + s.id + '/test', {});
+var sent = Number(r.sent || 0), failed = Number(r.failed || 0);
+toast('测试完成：成功 ' + sent + ' 台' + (failed ? '，失败 ' + failed + ' 台' : ''), failed ? 'err' : 'ok');
+loadSubs();
+} catch (ex) {}
+finally { btn.disabled = false; }
+}
+async function removeSub(s) {
+if (!confirm('确定删除订阅「' + s.name + '」？其工作线程会在 2 秒内停止。')) return;
+try {
+await api('DELETE', '/api/subscriptions/' + s.id, {});
+toast('订阅已删除', 'ok');
+await refreshCore();
+} catch (ex) {}
+}
+async function openSubForm(sub) {
+await ensureSettings();
+if (state.isAdmin && !state.users.length) await loadUsers();
+var editing = !!sub;
+var defaults = (state.settings && state.settings.defaults) || {};
+var name = el('input', { type: 'text', maxlength: '64', value: editing ? sub.name : '', placeholder: '例如：服务器告警' });
+var topic = el('input', { type: 'text', maxlength: '64', value: editing ? sub.topic : '', placeholder: 'ntfy topic，例如 alerts' });
+var url = el('input', { type: 'text', value: editing ? (sub.ntfy_url || '') : '', placeholder: '留空使用默认地址' + (defaults.ntfy_url ? '（' + defaults.ntfy_url + '）' : '') });
+var token = el('input', { type: 'password', autocomplete: 'new-password', value: '', placeholder: editing ? (sub.has_token ? '已设置 Token，留空表示不修改' : '当前未设置 Token') : '可选，ntfy 访问令牌' });
+var tokenClear = { on: false };
+var clearBtn = null;
+if (editing && sub.has_token) {
+clearBtn = el('button', {
+class: 'btn ghost sm', type: 'button', text: '清除 Token',
+onclick: function () {
+tokenClear.on = !tokenClear.on;
+token.value = '';
+token.disabled = tokenClear.on;
+clearBtn.textContent = tokenClear.on ? '取消清除' : '清除 Token';
+clearBtn.classList.toggle('danger', tokenClear.on);
+}
+});
+}
+var since = el('input', { type: 'text', maxlength: '32', list: 'since-list', value: editing ? sub.since : '', placeholder: '默认 ' + (defaults.since || '1m') });
+var prio = select(PRIO_OPTS, String(editing ? (sub.priority_min || 0) : 0));
+var keyword = el('input', { type: 'text', maxlength: '256', value: editing ? (sub.keyword || '') : '', placeholder: '空格分隔，需全部命中' });
+var exclude = el('input', { type: 'text', maxlength: '256', value: editing ? (sub.exclude_keyword || '') : '', placeholder: '空格分隔，命中即丢弃' });
+var prefix = el('input', { type: 'text', maxlength: '32', value: editing ? (sub.title_prefix || '') : '', placeholder: 'Bark 标题前缀' });
+var active = el('input', { type: 'checkbox' });
+active.checked = editing ? !!sub.is_active : true;
+var owner = state.isAdmin && !editing ? ownerSelect(state.user ? state.user.id : '') : null;
+var picks = [];
+var pickBox = el('div', { class: 'devpick' });
+if (!state.devices.length) {
+pickBox.appendChild(el('span', { class: 'muted', text: '暂无设备，请先到「设备」页添加目标设备。' }));
+}
+state.devices.forEach(function (dv) {
+var cb = el('input', { type: 'checkbox', value: String(dv.id) });
+cb.checked = !!(editing && (sub.device_ids || []).indexOf(dv.id) >= 0);
+picks.push(cb);
+pickBox.appendChild(el('label', { class: 'chk' }, cb,
+el('span', { class: 'clip', text: dv.name + (state.isAdmin && dv.owner ? ' · ' + dv.owner : '') })
+));
+});
+var body = el('div', {},
+el('div', { class: 'form-grid' },
+field('名称', name),
+field('ntfy topic', topic, '字母/数字/下划线/连字符/点'),
+field('ntfy 地址', url),
+field('since（回溯起点）', since, '1m / 10m / 1h / 24h / all 等'),
+field('优先级过滤', prio, '0 = 不过滤'),
+field('标题前缀', prefix),
+field('关键词（全部命中）', keyword),
+field('排除词（命中即丢）', exclude),
+owner ? field('归属用户', owner, '创建后不可改归属') : null,
+el('div', { class: 'fld' },
+el('span', { text: 'ntfy Token' }),
+token,
+clearBtn,
+el('span', { class: 'fld-hint', text: editing ? '留空 = 保持原 Token 不变；清除需点上方按钮' : '可选，公开 topic 无需填写' })
+)
+),
+el('div', { class: 'fld' }, el('span', { text: '目标设备（可多选）' }), pickBox),
+el('div', { class: 'checkline' }, el('label', { class: 'chk' }, active, '启用该订阅'))
+);
+openModal(editing ? '编辑订阅' : '新增订阅', body, async function (err) {
+var vn = name.value.trim();
+var vt = topic.value.trim();
+if (!vn) return fail(err, '请填写订阅名称');
+if (!vt) return fail(err, '请填写 ntfy topic');
+if (!TOPIC_RE.test(vt)) return fail(err, 'topic 只能包含字母、数字、下划线、连字符或点（1~64 位）');
+var payload = {
+name: vn,
+topic: vt,
+priority_min: Number(prio.value),
+keyword: keyword.value.trim(),
+exclude_keyword: exclude.value.trim(),
+title_prefix: prefix.value.trim(),
+is_active: active.checked,
+device_ids: picks.filter(function (cb) { return cb.checked; }).map(function (cb) { return Number(cb.value); })
+};
+var sv = since.value.trim();
+if (sv) payload.since = sv;
+if (url.value.trim()) payload.ntfy_url = url.value.trim();
+if (tokenClear.on) payload.token = '';
+else if (token.value.trim()) payload.token = token.value.trim();
+if (owner) payload.owner_id = Number(owner.value);
+try {
+await api(editing ? 'PUT' : 'POST', editing ? '/api/subscriptions/' + sub.id : '/api/subscriptions', payload);
+} catch (ex) { return fail(err, ex.message || '保存失败'); }
+toast(editing ? '订阅已更新' : '订阅已创建', 'ok');
+await refreshCore();
+return true;
+});
+}
+/* 用户 */
+async function loadUsers() {
+if (!state.isAdmin) return;
+try {
+var d = await api('GET', '/api/users', undefined, { silent: true });
+state.users = d.users || [];
+renderUsers();
+} catch (e) {}
+}
+function ownerSelect(currentId) {
+var opts = state.users.map(function (u) {
+return [String(u.id), u.username + (u.role === 'admin' ? '（管理员）' : '')];
+});
+if (!opts.length && state.user) opts = [[String(state.user.id), state.user.username]];
+return select(opts, currentId);
+}
+function renderUsers() {
+var box = $('#user-list');
+box.textContent = '';
+if (!state.users.length) {
+box.appendChild(el('p', { class: 'empty', text: '暂无用户数据。' }));
+return;
+}
+state.users.forEach(function (u) { box.appendChild(userCard(u)); });
+}
+function userCard(u) {
+var self = !!(state.user && u.id === state.user.id);
+var card = el('div', { class: 'card' },
+el('div', { class: 'row between' },
+el('h3', { text: u.username + (self ? '（我）' : '') }),
+u.role === 'admin' ? badge('管理员', 'accent') : badge('普通用户', 'muted')
+),
+el('div', { class: 'row gap4' }, u.is_active ? badge('启用', 'ok') : badge('停用', 'muted')),
+el('div', { class: 'kv' }, el('span', { class: 'muted', text: '设备 / 订阅' }), el('span', { text: (u.device_count || 0) + ' / ' + (u.subscription_count || 0) })),
+el('div', { class: 'kv' }, el('span', { class: 'muted', text: '创建时间' }), el('span', { text: fmtTime(u.created_at) })),
+el('div', { class: 'row end' },
+el('button', { class: 'btn sm', type: 'button', text: '编辑', onclick: function () { openUserForm(u); } }),
+self ? null : el('button', { class: 'btn sm danger', type: 'button', text: '删除', onclick: function () { removeUser(u); } })
+)
+);
+return card;
+}
+async function removeUser(u) {
+if (!confirm('确定删除用户「' + u.username + '」？其全部设备与订阅会一并删除，且不可恢复。')) return;
+try {
+await api('DELETE', '/api/users/' + u.id, {});
+toast('用户已删除', 'ok');
+await refreshCore();
+} catch (ex) {}
+}
+async function openUserForm(user) {
+var editing = !!user;
+var self = !!(editing && state.user && user.id === state.user.id);
+var name = el('input', { type: 'text', maxlength: '32', value: editing ? user.username : '', placeholder: '2~32 位字母、数字、_ . -' });
+var pass = el('input', { type: 'password', autocomplete: 'new-password', value: '', placeholder: editing ? '留空表示不修改密码' : '至少 8 位' });
+var role = select([['user', '普通用户'], ['admin', '管理员']], editing ? user.role : 'user');
+var active = el('input', { type: 'checkbox' });
+active.checked = editing ? !!user.is_active : true;
+if (self) { active.disabled = true; role.disabled = true; }
+var body = el('div', {},
+el('div', { class: 'form-grid' },
+field('用户名', name),
+field(editing ? '新密码' : '密码', pass, '8~128 位'),
+field('角色', role, self ? '不能修改自己的角色' : null),
+el('div', { class: 'fld' }, el('span', { text: '状态' }), el('label', { class: 'chk' }, active, '启用该账号'))
+),
+self ? el('p', { class: 'hint', text: '不能停用或降级自己的管理员账号。' }) : null
+);
+openModal(editing ? '编辑用户' : '新增用户', body, async function (err) {
+var vn = name.value.trim();
+if (!USER_RE.test(vn)) return fail(err, '用户名需为 2~32 位字母、数字、下划线、点或连字符');
+var pw = pass.value;
+var payload = { username: vn };
+if (!role.disabled) payload.role = role.value;
+if (!active.disabled) payload.is_active = active.checked;
+if (!editing) {
+if (pw.length < 8 || pw.length > 128) return fail(err, '密码长度需为 8~128 位');
+payload.password = pw;
+} else if (pw) {
+if (pw.length < 8 || pw.length > 128) return fail(err, '密码长度需为 8~128 位');
+payload.password = pw;
+}
+try {
+await api(editing ? 'PUT' : 'POST', editing ? '/api/users/' + user.id : '/api/users', payload);
+} catch (ex) { return fail(err, ex.message || '保存失败'); }
+toast(editing ? '用户已更新' : '用户已创建', 'ok');
+await refreshCore();
+return true;
+});
+}
+function openPasswordForm() {
+var oldP = el('input', { type: 'password', autocomplete: 'current-password', value: '', placeholder: '当前密码' });
+var newP = el('input', { type: 'password', autocomplete: 'new-password', value: '', placeholder: '至少 8 位' });
+var newP2 = el('input', { type: 'password', autocomplete: 'new-password', value: '', placeholder: '再输一次' });
+var body = el('div', {},
+el('div', { class: 'fld' }, el('span', { text: '当前密码' }), oldP),
+el('div', { class: 'fld' }, el('span', { text: '新密码（8~128 位）' }), newP),
+el('div', { class: 'fld' }, el('span', { text: '确认新密码' }), newP2)
+);
+openModal('修改我的密码', body, async function (err) {
+if (!oldP.value) return fail(err, '请填写当前密码');
+if (newP.value.length < 8 || newP.value.length > 128) return fail(err, '新密码长度需为 8~128 位');
+if (newP.value !== newP2.value) return fail(err, '两次输入的新密码不一致');
+try {
+await api('POST', '/api/password', { old_password: oldP.value, new_password: newP.value });
+} catch (ex) { return fail(err, ex.message || '修改失败'); }
+toast('密码已修改，其他会话已失效', 'ok');
+try { await api('GET', '/api/me', undefined, { silent: true }); } catch (e) {}
+return true;
+});
+}
+/* 在线更新 */
+var UPDATE_TTL = 5 * 60 * 1000;
+function setUpdateDot(on) {
+var dot = $('#update-dot');
+if (dot) dot.hidden = !on;
+var badge = $('#ver-badge');
+if (badge && state.isAdmin) badge.setAttribute('title', on ? '在线更新：发现新版本' : '在线更新');
+}
+function updateHasRemote(data) {
+return !!(data && data.enabled !== false && data.remote && data.remote.available);
+}
+function applyUpdateBadge(data) {
+if (!state.isAdmin) { setUpdateDot(false); return; }
+setUpdateDot(updateHasRemote(data));
+}
+function notifyLastApplied(data) {
+var la = data && data.last_applied;
+if (!la || !la.at || state.appliedNotified === la.at) return;
+if (Date.now() / 1000 - la.at > 600) return;
+state.appliedNotified = la.at;
+toast('已更新到 v' + (la.to_version || '新版本'), 'ok');
+}
+function rememberUpdate(data) {
+state.updateCache = { data: data, at: Date.now() };
+applyUpdateBadge(data);
+notifyLastApplied(data);
+}
+async function refreshUpdateBadge() {
+if (!state.isAdmin) return;
+if (state.updateCache && Date.now() - state.updateCache.at < UPDATE_TTL) {
+applyUpdateBadge(state.updateCache.data);
+return;
+}
+try {
+var d = await api('GET', '/api/update', undefined, { silent: true });
+rememberUpdate(d);
+} catch (e) {}
+}
+function resetUpdateDialog() {
+if (state.updateTimer) { clearTimeout(state.updateTimer); state.updateTimer = 0; }
+document.removeEventListener('keydown', updateEsc);
+state.upd = null;
+}
+function updateEsc(ev) { if (ev.key === 'Escape') closeUpdateDialog(); }
+function closeUpdateDialog(force) {
+if (!force && state.upd && state.upd.waiting) return;
+resetUpdateDialog();
+closeModal();
+}
+function updRow(label, value, mono) {
+return el('div', { class: 'upd-row' },
+el('span', { text: label }),
+el('span', { class: 'clip' + (mono ? ' mono' : ''), text: value })
+);
+}
+function showUpdateErr(msg) {
+if (!state.upd) return;
+state.upd.err.textContent = msg;
+state.upd.err.hidden = false;
+}
+function showUpdateBusy(text) {
+var u = state.upd;
+if (!u) return;
+if (u.busyEl && u.busyEl.parentNode) u.busyEl.parentNode.removeChild(u.busyEl);
+u.busyEl = el('div', { class: 'upd-busy', text: text });
+u.body.appendChild(u.busyEl);
+}
+function updateDialogButtons() {
+var u = state.upd;
+if (!u) return;
+var d = u.data;
+var enabled = !!(d && d.enabled !== false);
+var supported = !(d && d.apply && d.apply.supported === false);
+var busy = !!u.mode;
+var behind = !!(d && d.remote && d.remote.behind);
+u.check.disabled = busy;
+u.check.textContent = u.mode === 'check' ? '检查中…' : '检查更新';
+u.apply.disabled = busy || behind || !(enabled && updateHasRemote(d) && supported);
+u.close.disabled = u.mode === 'wait' || u.mode === 'done';
+}
+function renderUpdate(data) {
+var u = state.upd;
+if (!u) return;
+if (data !== null && data !== undefined) u.data = data;
+var d = u.data;
+var b = u.body;
+b.textContent = '';
+u.busyEl = null;
+if (d) {
+b.appendChild(updRow('当前版本', 'v' + (d.current_version || state.version || '?') + ' · ' + (d.current_hash || '?')));
+b.appendChild(updRow('代码仓库', (d.repo || '—') + (d.branch ? ' @ ' + d.branch : '')));
+if (d.checked_at) b.appendChild(updRow('检查时间', fmtTime(d.checked_at) + (d.cached ? '（后端缓存）' : '（实时检查）')));
+if (d.last_applied && d.last_applied.at) b.appendChild(updRow('最近更新', 'v' + (d.last_applied.from_version || '?') + ' → v' + (d.last_applied.to_version || '?') + ' · ' + fmtTime(d.last_applied.at)));
+} else {
+b.appendChild(updRow('当前版本', 'v' + (state.version || '?')));
+}
+var st = el('div', { class: 'upd-status' });
+if (!d) {
+st.appendChild(el('div', { class: 'upd-note', text: '正在获取更新信息…' }));
+} else if (d.enabled === false) {
+st.appendChild(el('div', { class: 'upd-warn', text: '在线更新已关闭（UPDATE_ENABLED=0）' }));
+} else if (updateHasRemote(d)) {
+var r = d.remote;
+st.appendChild(el('div', { class: 'upd-new', text: '发现新版本 v' + (r.version || '?') }));
+st.appendChild(updRow('远端版本', 'v' + (r.version || '?') + ' · ' + (r.hash || '?'), true));
+if (r.commit) st.appendChild(updRow('提交', r.commit, true));
+if (r.subject) st.appendChild(updRow('说明', r.subject));
+if (r.committed_at) st.appendChild(updRow('提交时间', r.committed_at));
+} else if (d.remote && d.remote.behind) {
+st.appendChild(el('div', { class: 'upd-warn', text: d.warning || '远端版本低于本地，已禁用更新（可能是本地改动尚未推送）' }));
+st.appendChild(updRow('远端版本', 'v' + (d.remote.version || '?') + ' · ' + (d.remote.hash || '?'), true));
+} else if (d.remote) {
+st.appendChild(el('div', { text: '已是最新版本' }));
+} else {
+st.appendChild(el('div', { class: 'upd-note', text: '尚未获得远端版本信息，请点击「检查更新」' }));
+}
+if (d && d.warning && !(d.remote && d.remote.behind)) st.appendChild(el('div', { class: 'upd-warn', text: d.warning }));
+if (d && d.error) st.appendChild(el('div', { class: 'upd-warn', text: '检查更新失败：' + d.error }));
+if (d && d.apply && d.apply.supported === false) {
+st.appendChild(el('div', { class: 'upd-warn', text: '无法在线更新：' + (d.apply.reason || '程序目录不可写') }));
+}
+b.appendChild(st);
+b.appendChild(el('div', { class: 'upd-note', text: '更新会替换程序文件并重启服务，期间约 1~2 秒不可用；数据库、用户、设备、订阅与配置不受影响。' }));
+u.err.hidden = true;
+updateDialogButtons();
+}
+async function requestUpdate(force) {
+var u = state.upd;
+if (!u || u.mode) return;
+u.mode = 'check';
+updateDialogButtons();
+u.err.hidden = true;
+try {
+var d = force
+? await api('POST', '/api/update/check', {}, { silent: true })
+: await api('GET', '/api/update', undefined, { silent: true });
+rememberUpdate(d);
+renderUpdate(d);
+if (force) {
+if (updateHasRemote(d)) toast('发现新版本 v' + d.remote.version, 'ok');
+else if (d.remote && d.remote.behind) toast('远端版本低于本地，已禁用更新', 'err');
+else toast('已是最新版本', 'info');
+}
+} catch (ex) {
+var msg = (ex && ex.status === 404) ? '服务端未实现在线更新接口（/api/update），请先升级后端' : ((ex && ex.message) || '检查更新失败');
+if (u.data) renderUpdate(u.data);
+showUpdateErr(msg);
+if (force) toast(msg, 'err');
+} finally {
+if (state.upd === u) {
+u.mode = null;
+updateDialogButtons();
+}
+}
+}
+async function applyUpdate() {
+var u = state.upd;
+if (!u || u.mode) return;
+var d = u.data;
+if (!updateHasRemote(d) || d.remote.behind || (d.apply && d.apply.supported === false)) return;
+var to = d.remote.version || '新版本';
+if (!confirm('将替换程序文件并重启服务，期间约 1~2 秒不可用。\n数据库、用户、设备、订阅与配置不受影响。\n\n确定立即更新到 v' + to + ' 吗？')) return;
+u.mode = 'apply';
+updateDialogButtons();
+showUpdateBusy('正在下载并应用更新…');
+try {
+var r = await api('POST', '/api/update/apply', {});
+u.mode = 'wait';
+u.waiting = true;
+updateDialogButtons();
+showUpdateBusy('正在更新 v' + (r.from_version || '?') + ' → v' + (r.to_version || to) + '，等待服务重启…（最多 30 秒）');
+beginUpdateWait(r.from_version || d.current_version || '', r.to_version || to);
+} catch (ex) {
+u.mode = null;
+updateDialogButtons();
+if (u.busyEl && u.busyEl.parentNode) u.busyEl.parentNode.removeChild(u.busyEl);
+u.busyEl = null;
+showUpdateErr((ex && ex.message) || '更新失败');
+if (ex && ex.code === 'invalid_request') requestUpdate(true);
+}
+}
+function beginUpdateWait(fromVersion, toVersion) {
+var u = state.upd;
+if (!u) return;
+var started = Date.now();
+function done(version) {
+if (state.updateTimer) { clearTimeout(state.updateTimer); state.updateTimer = 0; }
+if (!state.upd) return;
+state.upd.mode = 'done';
+state.upd.waiting = false;
+updateDialogButtons();
+showUpdateBusy('更新完成' + (version ? '，当前版本 v' + version : '') + '，1 秒后自动刷新…');
+toast('已更新到 v' + (toVersion || version || '新版本'), 'ok');
+setTimeout(function () { location.reload(); }, 1000);
+}
+function failed() {
+if (state.updateTimer) { clearTimeout(state.updateTimer); state.updateTimer = 0; }
+if (!state.upd) return;
+state.upd.mode = null;
+state.upd.waiting = false;
+updateDialogButtons();
+if (state.upd.busyEl && state.upd.busyEl.parentNode) state.upd.busyEl.parentNode.removeChild(state.upd.busyEl);
+state.upd.busyEl = null;
+showUpdateErr('重启超时，请手动刷新页面');
+toast('重启超时，请手动刷新页面', 'err');
+}
+function tick() {
+if (!state.upd || !state.upd.waiting) return;
+var elapsed = Date.now() - started;
+if (elapsed > 30000) { failed(); return; }
+fetch('/api/health', { credentials: 'same-origin', cache: 'no-store' })
+.then(function (res) { return res.ok ? res.json() : null; })
+.then(function (j) {
+if (!state.upd || !state.upd.waiting) return;
+var h = j && j.ok && j.data ? j.data : null;
+if (h && h.version && h.version !== fromVersion) { done(h.version); return; }
+if (h && (state.upd.sawDown || (h.uptime <= 2 && elapsed > 2000))) { done(h.version); return; }
+if (!h) state.upd.sawDown = true;
+state.updateTimer = setTimeout(tick, 700);
+})
+.catch(function () {
+if (!state.upd || !state.upd.waiting) return;
+state.upd.sawDown = true;
+state.updateTimer = setTimeout(tick, 700);
+});
+}
+tick();
+}
+function openUpdateDialog() {
+if (!state.isAdmin) return;
+resetUpdateDialog();
+closeModal();
+var body = el('div', { class: 'upd' });
+var err = el('p', { class: 'form-err' });
+err.hidden = true;
+var check = el('button', { class: 'btn', type: 'button', text: '检查更新' });
+var apply = el('button', { class: 'btn primary', type: 'button', text: '立即更新', disabled: true });
+var close = el('button', { class: 'btn ghost', type: 'button', text: '关闭' });
+var dialog = el('div', { class: 'modal-box' },
+el('div', { class: 'modal-head' },
+el('h2', { text: '在线更新' }),
+el('button', { class: 'btn ghost icon', type: 'button', text: '✕', 'aria-label': '关闭', onclick: function () { closeUpdateDialog(); } })
+),
+body, err,
+el('div', { class: 'modal-foot' }, check, close, apply)
+);
+var overlay = el('div', { class: 'overlay' }, dialog);
+overlay.addEventListener('click', function (ev) { if (ev.target === overlay) closeUpdateDialog(); });
+$('#modal-root').appendChild(overlay);
+document.addEventListener('keydown', updateEsc);
+state.upd = { body: body, err: err, check: check, apply: apply, close: close,
+data: null, mode: null, waiting: false, sawDown: false, busyEl: null };
+check.addEventListener('click', function () { requestUpdate(true); });
+apply.addEventListener('click', applyUpdate);
+close.addEventListener('click', function () { closeUpdateDialog(); });
+if (state.updateCache && Date.now() - state.updateCache.at < UPDATE_TTL) {
+renderUpdate(state.updateCache.data);
+} else {
+renderUpdate(null);
+}
+requestUpdate(false);
+}
+/* 复制 */
+function copyText(text) {
+function fallback() {
+var ta = el('textarea', { class: 'sr' });
+ta.value = text;
+document.body.appendChild(ta);
+ta.select();
+var ok = false;
+try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+document.body.removeChild(ta);
+toast(ok ? '已复制到剪贴板' : '复制失败，请手动选择复制', ok ? 'ok' : 'err');
+}
+if (navigator.clipboard && navigator.clipboard.writeText) {
+navigator.clipboard.writeText(text).then(function () { toast('已复制到剪贴板', 'ok'); }, fallback);
+} else { fallback(); }
+}
+/* 弹窗 */
+function openModal(title, body, onSubmit) {
+closeModal();
+var err = el('p', { class: 'form-err' });
+err.hidden = true;
+var save = el('button', { class: 'btn primary', type: 'submit', text: '保存' });
+var form;
+form = el('form', {
+class: 'modal-box',
+onsubmit: async function (ev) {
+ev.preventDefault();
+err.hidden = true;
+save.disabled = true;
+save.textContent = '保存中…';
+var done = false;
+try {
+var r = await onSubmit(err);
+done = (r !== false);
+} catch (ex) {
+err.textContent = (ex && ex.message) || '操作失败';
+err.hidden = false;
+} finally {
+save.disabled = false;
+save.textContent = '保存';
+}
+if (done) closeModal();
+}
+},
+el('div', { class: 'modal-head' },
+el('h2', { text: title }),
+el('button', { class: 'btn ghost icon', type: 'button', text: '✕', 'aria-label': '关闭', onclick: closeModal })
+),
+body,
+err,
+el('div', { class: 'modal-foot' },
+el('button', { class: 'btn', type: 'button', text: '取消', onclick: closeModal }),
+save
+)
+);
+var overlay = el('div', {
+class: 'overlay',
+onclick: function (ev) { if (ev.target === overlay) closeModal(); }
+}, form);
+$('#modal-root').appendChild(overlay);
+document.addEventListener('keydown', escClose);
+setTimeout(function () {
+var first = form.querySelector('input:not([type=checkbox]),select,textarea');
+if (first) first.focus();
+}, 60);
+}
+function closeModal() {
+var root = $('#modal-root');
+if (root) root.textContent = '';
+document.removeEventListener('keydown', escClose);
+}
+function escClose(ev) { if (ev.key === 'Escape') closeModal(); }
+/* 设置 */
+async function ensureSettings() {
+if (state.settings) return state.settings;
+try {
+state.settings = await api('GET', '/api/settings', undefined, { silent: true });
+} catch (e) {
+state.settings = null;
+}
+return state.settings;
+}
+async function refreshCore() {
+await Promise.all([loadDevices(), loadSubs(), state.isAdmin ? loadUsers() : Promise.resolve()]);
+if (state.tab === 'overview') loadOverview();
+}
+/* 认证 */
+async function onLogin(ev) {
+ev.preventDefault();
+var user = $('#login-user').value.trim();
+var pass = $('#login-pass').value;
+var msg = $('#login-msg');
+var btn = $('#login-btn');
+msg.textContent = '';
+if (!user || !pass) { msg.textContent = '请输入用户名和密码'; return; }
+btn.disabled = true;
+btn.textContent = '登录中…';
+try {
+await api('POST', '/api/login', { username: user, password: pass }, { silent: true, noAuth: true });
+var me = await api('GET', '/api/me', undefined, { silent: true, noAuth: true });
+await enterApp(me);
+} catch (ex) {
+msg.textContent = (ex && ex.message) || '登录失败';
+} finally {
+btn.disabled = false;
+btn.textContent = '登录';
+}
+}
+async function onSetup(ev) {
+ev.preventDefault();
+var user = $('#setup-user').value.trim() || 'admin';
+var pass = $('#setup-pass').value;
+var pass2 = $('#setup-pass2').value;
+var msg = $('#setup-msg');
+var btn = $('#setup-btn');
+msg.textContent = '';
+if (pass.length < 8) { msg.textContent = '密码至少 8 位'; return; }
+if (pass.length > 128) { msg.textContent = '密码不能超过 128 位'; return; }
+if (pass !== pass2) { msg.textContent = '两次输入的密码不一致'; return; }
+btn.disabled = true;
+btn.textContent = '创建中…';
+try {
+await api('POST', '/api/setup', { username: user, password: pass }, { silent: true, noAuth: true });
+var me = await api('GET', '/api/me', undefined, { silent: true, noAuth: true });
+await enterApp(me);
+} catch (ex) {
+if (ex && ex.status === 409) {
+showView('login');
+$('#login-msg').textContent = '管理员已存在，请直接登录';
+$('#login-user').value = user;
+toast('管理员已存在，请直接登录', 'err');
+} else {
+msg.textContent = (ex && ex.message) || '创建失败';
+}
+} finally {
+btn.disabled = false;
+btn.textContent = '创建管理员并登录';
+}
+}
+async function onLogout() {
+try { await api('POST', '/api/logout', {}, { silent: true }); } catch (e) {}
+state.settings = null;
+toLogin(false);
+toast('已退出登录', 'ok');
+}
+/* 启动 */
+function bindEvents() {
+$('#login-form').addEventListener('submit', onLogin);
+$('#setup-form').addEventListener('submit', onSetup);
+$('#btn-logout').addEventListener('click', onLogout);
+$('#btn-pass').addEventListener('click', openPasswordForm);
+$('#ver-badge').addEventListener('click', function () { if (state.isAdmin) openUpdateDialog(); });
+$$('#tabs .tab').forEach(function (btn) {
+btn.addEventListener('click', function () { switchTab(btn.getAttribute('data-tab')); });
+});
+$('#ov-refresh').addEventListener('click', function () { loadOverview(); });
+$('#dev-refresh').addEventListener('click', function () { loadDevices(); });
+$('#sub-refresh').addEventListener('click', function () { loadSubs(); });
+$('#user-refresh').addEventListener('click', function () { loadUsers(); });
+$('#dev-add').addEventListener('click', function () { openDeviceForm(null); });
+$('#sub-add').addEventListener('click', function () { openSubForm(null); });
+$('#user-add').addEventListener('click', function () { openUserForm(null); });
+$('#log-pause').addEventListener('click', function () {
+state.logPaused = !state.logPaused;
+this.textContent = state.logPaused ? '继续' : '暂停';
+this.classList.toggle('primary', state.logPaused);
+if (state.logPaused) toast('日志已暂停', 'info');
+else { toast('日志已继续', 'ok'); pollActivity(); }
+});
+$('#log-clear').addEventListener('click', function () {
+var box = $('#log-list');
+box.textContent = '';
+box.appendChild(el('p', { class: 'empty', text: '等待推送事件…' }));
+});
+$('#log-now').addEventListener('click', function () { pollActivity(); });
+document.addEventListener('visibilitychange', function () {
+if (document.visibilityState !== 'visible') return;
+if (!state.user) return;
+if (state.tab === 'logs' && !state.logPaused) pollActivity();
+if (state.tab === 'overview') loadOverviewSilent();
+});
+}
+async function boot() {
+bindEvents();
+showView('login');
+var health;
+try {
+health = await api('GET', '/api/health', undefined, { silent: true });
+} catch (ex) {
+$('#login-ver').textContent = '无法连接服务端，请确认后端已启动';
+return;
+}
+state.health = health || {};
+$('#login-ver').textContent = state.health.version ? ('服务端 v' + state.health.version) : '';
+if (state.health.needs_setup) {
+showView('setup');
+setTimeout(function () { try { $('#setup-user').focus(); } catch (e) {} }, 80);
+return;
+}
+try {
+var me = await api('GET', '/api/me', undefined, { silent: true, noAuth: true });
+await enterApp(me);
+} catch (ex) {
+showView('login');
+}
+}
+boot();
+})();</script>
+</body>
+</html>

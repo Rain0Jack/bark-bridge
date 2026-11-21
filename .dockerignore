@@ -5,5 +5,12 @@
 LICENSE
 docker-compose*.yml
 systemd/
+tests/
+docs/
+data/
+.tmp*
 __pycache__
 *.pyc
+*.db
+*.db-wal
+*.db-shm

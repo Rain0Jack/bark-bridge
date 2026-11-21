@@ -1,19 +1,29 @@
 [Unit]
-Description=ntfy to Bark bridge
-Documentation=https://github.com/yourname/bark-bridge
-After=network-online.target docker.service
+Description=bark-bridge (ntfy to Bark bridge with WebUI)
+Documentation=https://github.com/Rain0Jack/bark-bridge
+After=network-online.target
 Wants=network-online.target
 
 [Service]
 Type=simple
 EnvironmentFile=/etc/bark-bridge/env
+# SQLite 数据目录（StateDirectory 会自动创建并授权给运行用户）
+Environment=DATA_DIR=/var/lib/bark-bridge
 ExecStart=/usr/bin/python3 /opt/bark-bridge/bark-bridge.py
 Restart=always
 RestartSec=5
+StateDirectory=bark-bridge
 
-# 可选：用普通用户运行（需要能访问 ntfy 的 HTTP 端口即可）
-# User=rain0jack
-# Group=rain0jack
+# 基础加固
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/bark-bridge
+
+# 可选：用普通用户运行（StateDirectory 会随 User 一起把数据目录给它）
+#User=bark-bridge
+#Group=bark-bridge
 
 [Install]
 WantedBy=multi-user.target

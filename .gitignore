@@ -1,10 +1,22 @@
 # secrets
 .env
 
+# runtime data (SQLite: users / devices / subscriptions / session secret)
+data/
+*.db
+*.db-wal
+*.db-shm
+
 # python
 __pycache__/
 *.py[cod]
 *.egg-info/
+.venv/
+venv/
+
+# test scratch
+tests/.tmp/
+.tmp*/
 
 # editor / os
 .idea/

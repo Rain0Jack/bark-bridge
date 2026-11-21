@@ -1,10 +1,22 @@
 # 构建成独立镜像运行（不挂载脚本），适合推到自己的镜像仓库
+# 注意：镜像模式代码在镜像里，WebUI 的「在线更新」只改容器可写层（重建容器会回退），
+# 长期升级请用 scripts/update.sh --build 或重新 build 镜像。
 services:
   bark-bridge:
     build: .
     image: bark-bridge:latest
     container_name: bark-bridge
     restart: unless-stopped
+    # host 网络：WebUI 直接监听 .env 里的 PORT（默认 8080），无需 ports 映射
     network_mode: host
     env_file:
       - .env
+    volumes:
+      # 只需持久化数据目录（用户 / 设备 / 订阅 / 会话密钥）
+      - ./data:/app/data
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import os,urllib.request;urllib.request.urlopen('http://127.0.0.1:'+os.environ.get('PORT','8080')+'/api/health',timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s

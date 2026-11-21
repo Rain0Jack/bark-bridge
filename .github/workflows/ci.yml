@@ -5,14 +5,41 @@ on:
   pull_request:
 
 jobs:
-  lint:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+
       - name: Syntax check
         run: python -m py_compile bark-bridge.py
-      - name: Validate compose file
-        run: docker compose -f docker-compose.yml config --quiet
+
+      - name: Check WebUI inline script syntax
+        run: |
+          python - <<'PY'
+          import pathlib
+          import re
+
+          html = pathlib.Path("webui.html").read_text(encoding="utf-8")
+          scripts = re.findall(r"<script[^>]*>(.*?)</script>", html, re.S)
+          assert scripts, "webui.html has no inline <script>"
+          pathlib.Path("webui.inline.js").write_text("\n".join(scripts), encoding="utf-8")
+          print(f"extracted {len(scripts)} script block(s)")
+          PY
+          node --check webui.inline.js
+
+      - name: Tests (stdlib unittest, fake ntfy + fake Bark + fake GitHub, no network)
+        run: python -m unittest discover -s tests -v
+
+      - name: Shell check updater
+        run: bash -n scripts/update.sh && echo "update.sh OK"
+
+      - name: Validate compose files
+        run: |
+          cp .env.example .env
+          docker compose -f docker-compose.yml config --quiet
+          docker compose -f docker-compose.build.yml config --quiet
+          echo "compose OK"
